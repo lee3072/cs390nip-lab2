@@ -87,14 +87,14 @@ def getRawData():
         mnist = tf.keras.datasets.fashion_mnist
         (xTrain, yTrain), (xTest, yTest) = mnist.load_data()
     elif DATASET == "cifar_10":
-        mnist = tf.keras.datasets.cifar10.load_data()
-        (xTrain, yTrain), (xTest, yTest) = mnist.load_data()
+        cifar = tf.keras.datasets.cifar10.load_data()
+        (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
     elif DATASET == "cifar_100_f":
-        mnist = tf.keras.datasets.cifar100.load_data(label_mode="fine")
-        (xTrain, yTrain), (xTest, yTest) = mnist.load_data()
+        cifar = tf.keras.datasets.cifar100.load_data(label_mode="fine")
+        (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
     elif DATASET == "cifar_100_c":
-        mnist = tf.keras.datasets.cifar100.load_data(label_mode="coarse")
-        (xTrain, yTrain), (xTest, yTest) = mnist.load_data()
+        cifar = tf.keras.datasets.cifar100.load_data(label_mode="coarse")
+        (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
     else:
         raise ValueError("Dataset not recognized.")
     print("Dataset: %s" % DATASET)
