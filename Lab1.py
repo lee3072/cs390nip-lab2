@@ -15,13 +15,13 @@ tf.random.set_seed(1618)
 #tf.logging.set_verbosity(tf.logging.ERROR)   # Uncomment for TF1.
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-ALGORITHM = "guesser"
-#ALGORITHM = "tf_net"
+# ALGORITHM = "guesser"
+ALGORITHM = "tf_net"
 #ALGORITHM = "tf_conv"
 
-DATASET = "mnist_d"
+# DATASET = "mnist_d"
 #DATASET = "mnist_f"
-#DATASET = "cifar_10"
+DATASET = "cifar_10"
 #DATASET = "cifar_100_f"
 #DATASET = "cifar_100_c"
 
@@ -68,9 +68,11 @@ def guesserClassifier(xTest):
     return np.array(ans)
 
 
-def buildTFNeuralNet(x, y, eps = 6):
-    pass        #TODO: Implement a standard ANN here.
-    return None
+def buildTFNeuralNet(x, y, eps = 6):    # Brought from lab 1
+    model = tf.keras.models.Sequential([tf.keras.layers.Flatten(),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(NUM_CLASSES,activation=tf.nn.softmax)])
+    model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+    model.fit(x,np.argmax(y, axis=1),epochs=eps) # Reverse the to_categorical to perform fit, reference: https://github.com/keras-team/keras/issues/4981
+    return model
 
 
 def buildTFConvNet(x, y, eps = 10, dropout = True, dropRate = 0.2):
@@ -87,14 +89,14 @@ def getRawData():
         mnist = tf.keras.datasets.fashion_mnist
         (xTrain, yTrain), (xTest, yTest) = mnist.load_data()
     elif DATASET == "cifar_10":
-        cifar = tf.keras.datasets.cifar10.load_data()
+        cifar = tf.keras.datasets.cifar10
         (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
     elif DATASET == "cifar_100_f":
-        cifar = tf.keras.datasets.cifar100.load_data(label_mode="fine")
-        (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
+        cifar = tf.keras.datasets.cifar100
+        (xTrain, yTrain), (xTest, yTest) = cifar.load_data(label_mode="fine")
     elif DATASET == "cifar_100_c":
-        cifar = tf.keras.datasets.cifar100.load_data(label_mode="coarse")
-        (xTrain, yTrain), (xTest, yTest) = cifar.load_data()
+        cifar = tf.keras.datasets.cifar100
+        (xTrain, yTrain), (xTest, yTest) = cifar.load_data(label_mode="coarse")
     else:
         raise ValueError("Dataset not recognized.")
     print("Dataset: %s" % DATASET)
@@ -102,7 +104,7 @@ def getRawData():
     print("Shape of yTrain dataset: %s." % str(yTrain.shape))
     print("Shape of xTest dataset: %s." % str(xTest.shape))
     print("Shape of yTest dataset: %s." % str(yTest.shape))
-    return ((xTrain, yTrain), (xTest, yTest))
+    return ((xTrain*1.0, yTrain*1.0), (xTest*1.0, yTest*1.0))
 
 
 
