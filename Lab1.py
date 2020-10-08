@@ -16,11 +16,11 @@ tf.random.set_seed(1618)
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # ALGORITHM = "guesser"
-ALGORITHM = "tf_net"
-#ALGORITHM = "tf_conv"
+# ALGORITHM = "tf_net"
+ALGORITHM = "tf_conv"
 
 # DATASET = "mnist_d"
-#DATASET = "mnist_f"
+# DATASET = "mnist_f"
 DATASET = "cifar_10"
 #DATASET = "cifar_100_f"
 #DATASET = "cifar_100_c"
@@ -68,16 +68,35 @@ def guesserClassifier(xTest):
     return np.array(ans)
 
 
-def buildTFNeuralNet(x, y, eps = 6):    # Brought from lab 1
-    model = tf.keras.models.Sequential([tf.keras.layers.Flatten(),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(NUM_CLASSES,activation=tf.nn.softmax)])
-    model.compile(optimizer='adam',loss='sparse_categorical_crossentropy',metrics=['accuracy'])
+def buildTFNeuralNet(x, y, eps = 10):    # Brought from lab 1
+    model = tf.keras.models.Sequential([tf.keras.layers.Flatten(),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(128,activation=tf.nn.relu),tf.keras.layers.Dense(512,activation=tf.nn.relu),tf.keras.layers.Dense(NUM_CLASSES,activation=tf.nn.softmax)])
+    opt = tf.optimizers.Adam()
+    # opt.learning_rate = 0.1
+    model.compile(optimizer=opt, loss='sparse_categorical_crossentropy',metrics=['accuracy'])
     model.fit(x,np.argmax(y, axis=1),epochs=eps) # Reverse the to_categorical to perform fit, reference: https://github.com/keras-team/keras/issues/4981
     return model
 
 
-def buildTFConvNet(x, y, eps = 10, dropout = True, dropRate = 0.2):
-    pass        #TODO: Implement a CNN here. dropout option is required.
-    return None
+def buildTFConvNet(x, y, eps = 23, dropout = True, dropRate = 0.43):
+    model = keras.Sequential()  # reference slide 6 and slide 4 
+    inShape = (IH, IW, IZ)
+    lossType = keras.losses.sparse_categorical_crossentropy
+    opt = tf.optimizers.Adam()
+    model.add(keras.layers.Conv2D(128, kernel_size = (3,3), activation = "relu", input_shape = inShape))
+    model.add(keras.layers.Conv2D(96, kernel_size = (3,3), activation = "relu"))
+    model.add(keras.layers.Conv2D(64, kernel_size = (3,3), activation = "relu"))
+    model.add(keras.layers.MaxPooling2D(pool_size = (2,2)))
+    model.add(keras.layers.Conv2D(64, kernel_size = (3,3), activation = "relu"))
+    model.add(keras.layers.Conv2D(96, kernel_size = (3,3), activation = "relu"))
+    # model.add(keras.layers.Dropout(dropRate)) # Brought from slide 4
+    model.add(keras.layers.Conv2D(128, kernel_size = (3,3), activation = "relu"))
+    model.add(keras.layers.Flatten())
+    model.add(keras.layers.Dense(128, activation = "relu"))
+    model.add(keras.layers.Dropout(dropRate)) # Brought from slide 4
+    model.add(keras.layers.Dense(NUM_CLASSES, activation = "softmax"))
+    model.compile(optimizer = opt, loss = lossType, metrics=['accuracy'])
+    model.fit(x,np.argmax(y, axis=1),eps)
+    return model
 
 #=========================<Pipeline Functions>==================================
 
